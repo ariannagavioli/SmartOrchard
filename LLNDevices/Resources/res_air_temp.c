@@ -9,8 +9,8 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response, u
 static void res_event_handler(void);
 
 /* A simple actuator example, depending on the color query parameter and post variable mode, corresponding led is activated or deactivated */
-EVENT_RESOURCE(res_soil_temp,
-         "title=\"Soil Temperature\";obs",
+EVENT_RESOURCE(res_air_temp,
+         "title=\"Air Temperature\";obs",
          res_get_handler,
          NULL,
          NULL,
@@ -26,12 +26,12 @@ static void res_event_handler(void) {
 		temperature -= random_value;
 	}
 	
-	if(temperature > 40)
-		temperature = 40;
+	if(temperature > 35)
+		temperature = 35;
 	else if(temperature < 0)
 		temperature = 0;
 	
-	coap_notify_observers(&res_soil_temp);
+	coap_notify_observers(&res_air_temp);
 }
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {	
@@ -44,5 +44,6 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response, u
 	}
 	
 	coap_set_header_content_format(response, TEXT_PLAIN);
-	coap_set_payload(response, buffer, snprintf((char *)buffer, preferred_size, "{\"Soil temperature\":%f}", req_temperature));
+	coap_set_payload(response, buffer, snprintf((char *)buffer, preferred_size, "{\"Air temperature\":%f}", req_temperature));
 }
+
