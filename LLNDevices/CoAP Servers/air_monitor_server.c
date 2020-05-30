@@ -15,6 +15,9 @@ AUTOSTART_PROCESSES(&air_monitor_server);
 
 extern coap_resource_t res_air_temp;
 extern coap_resource_t res_air_hum;
+
+static int observing_interval = 20;
+static struct etimer et;
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(air_monitor_server, ev, data){
 	PROCESS_BEGIN();
@@ -23,6 +26,21 @@ PROCESS_THREAD(air_monitor_server, ev, data){
 
 	coap_activate_resource(&res_air_temp, "air_temp");
 	coap_activate_resource(&res_air_hum, "air_hum");
+
+	etimer_set(&et, CLOCK_SECOND * observing_interval);
+  
+	printf("Loop\n");
+
+	while(1) {
+
+		PROCESS_WAIT_EVENT();
+
+		if(ev == PROCESS_EVENT_TIMER && data == &et){
+			res_obs.trigger();
+			etimer_set(&et, CLOCK_SECOND * observing_interval);
+		}
+
+	}
 
 	PROCESS_END();
 }
