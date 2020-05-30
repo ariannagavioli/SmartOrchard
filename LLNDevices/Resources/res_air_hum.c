@@ -8,7 +8,6 @@ static double humidity = 85;		//humidity percentage
 static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
 static void res_event_handler(void);
 
-/* A simple actuator example, depending on the color query parameter and post variable mode, corresponding led is activated or deactivated */
 EVENT_RESOURCE(res_air_hum,
          "title=\"Air Humidity\";obs",
          res_get_handler,
@@ -36,6 +35,6 @@ static void res_event_handler(void) {
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {	
 	coap_set_header_content_format(response, TEXT_PLAIN);
-	coap_set_payload(response, buffer, snprintf((char *)buffer, preferred_size, "{\"Air humidity\":%f}", humidity));
+	coap_set_payload(response, buffer, snprintf((char *)buffer, preferred_size, "{\"Air humidity\":%f %}", humidity));
 }
 
