@@ -3,7 +3,7 @@
 #include "contiki.h"
 #include "coap-engine.h"
 
-static char rgb_values[3]		= {0,1,0};		//Percentage of pixels being red, green and blue
+static float rgb_values[3]		= {0,1,0};		//Percentage of pixels being red, green and blue
 static int increasing_color		= 1;			//Either 0, 1 or 2: indicates the color that is increasing in percentage
 static int decreasing_color		= 2;			//Either 0, 1 or 2: indicates the color that is decreasing in percentage
 
@@ -19,7 +19,8 @@ EVENT_RESOURCE(res_ripeness_cam,
          res_event_handler);
          
 static void res_event_handler(void) {
-	static double random_value = 0.1 * rand() / RAND_MAX;	//returns a random value between 0 and 10%
+	static double random_value;
+	random_value = 0.1 * rand() / RAND_MAX;	//returns a random value between 0 and 10%
 	
 	if(rgb_values[decreasing_color] >= random_value) {			//The whole random percentage of pixels flows from a color to another
 		rgb_values[decreasing_color] -= random_value;
@@ -29,8 +30,9 @@ static void res_event_handler(void) {
 		rgb_values[increasing_color] += rgb_values[decreasing_color];
 		rgb_values[decreasing_color] = 0;
 
-		static int new_dec_color = rand() % 3;					//Switching the decreasing color
-		static int new_inc_color = rand() % 3;					//Switching the increasing color
+		decreasing_color = rand() % 3;					//Switching the decreasing color
+		while(increasing_color == decreasing_color)
+			increasing_color = rand() % 3;				//Switching the increasing color
 	}
 	
 	coap_notify_observers(&res_ripeness_cam);
