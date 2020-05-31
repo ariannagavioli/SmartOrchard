@@ -19,9 +19,11 @@ EVENT_RESOURCE(res_air_temp,
          res_event_handler);
          
 static void res_event_handler(void) {
-	static double random_value = 2 * rand() / RAND_MAX;				//returns a random value between 0 and 2
+	static double random_value;
+	random_value = rand() % 21;
+	random_value *= 0.1;									//random value is n*0.1°C and between (0°C,2°C), where n = {0, 1, ..., 20}
 	
-	temperature += (increasing_sign * random_value);				//temperature can change up to 2°C
+	temperature += (increasing_sign * random_value);		//temperature can change up to 2°C
 
 	if(temperature > 35)
 		temperature = 35;
@@ -33,12 +35,15 @@ static void res_event_handler(void) {
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {	
 	const char *degree = NULL;
-	double req_temperature = temperature;			// Default in °C
+	static double req_temperature;
+	req_temperature = temperature;			// Default in °C
 	static int isCelsius = 1;
 	
 	//Is conversion needed?
-	if(coap_get_post_variable(request, "degree", &degree)) {
-		if(!strcmp("F",degree))	{					// If client requested it to be in °F
+	if(coap_get_query_variable(request, "degree", &degree)) {
+		static char degree_val[1];
+		memcpy(degree_val, degree, 1);
+		if(!strcmp("F",degree_val))	{					// If client requested it to be in °F
 			req_temperature = req_temperature * 9 / 5 + 32;
 			isCelsius = 0;
 		}
