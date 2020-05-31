@@ -32,16 +32,20 @@ static void res_event_handler(void) {
 }
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {	
-	
+	const char *degree = NULL;
 	double req_temperature = temperature;			// Default in °C
+	static int isCelsius = 1;
 	
 	//Is conversion needed?
-	if() {
-		req_temperature = req_temperature * 9 / 5 + 32;
+	if(coap_get_post_variable(request, "degree", &degree)) {
+		if(!strcmp("F",degree))	{					// If client requested it to be in °F
+			req_temperature = req_temperature * 9 / 5 + 32;
+			isCelsius = 0;
+		}
 	}
 	
 	coap_set_header_content_format(response, TEXT_PLAIN);
-	if()
+	if(isCelsius)
 		coap_set_payload(response, buffer, snprintf((char *)buffer, preferred_size, "{\"Air temperature\":%f °C}", req_temperature));
 	else
 		coap_set_payload(response, buffer, snprintf((char *)buffer, preferred_size, "{\"Air temperature\":%f °F}", req_temperature));
