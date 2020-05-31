@@ -18,7 +18,8 @@ EVENT_RESOURCE(res_soil_salinity,
          res_event_handler);
          
 static void res_event_handler(void) {
-	static double random_value = rand() / RAND_MAX;						//returns a random value between 0 and 1
+	static double random_value;
+	random_value = rand() / RAND_MAX;						//returns a random value between 0 and 1
 	
 	soil_salinity += (increasing_sign * random_value);					//soil_salinity can change up to 1
 
