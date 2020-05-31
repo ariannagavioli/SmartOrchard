@@ -17,8 +17,12 @@ EVENT_RESOURCE(res_air_hum,
          res_event_handler);
          
 static void res_event_handler(void) {
-	static double random_value = 3 * rand() / RAND_MAX;				//returns a random value between 0 and 3
-	static double random_sign = rand()/RAND_MAX - 0.5;				//returns a random value between -0.5 and 0.5
+	static double random_value;
+	random_value = rand() % 11;
+	random_value *= 0.1;								//random value is a value n*0.1, where n = {0, 1, ..., 10}
+	printf("Random value: %f\n", random_value);
+	static int random_sign;
+	random_sign = rand() % 2;							//returns either 0 or 1
 	if(random_sign > 0) {
 		humidity += random_value;
 	} else {
@@ -35,6 +39,6 @@ static void res_event_handler(void) {
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {	
 	coap_set_header_content_format(response, TEXT_PLAIN);
-	coap_set_payload(response, buffer, snprintf((char *)buffer, preferred_size, "{\"Air humidity\":%f %}", humidity));
+	coap_set_payload(response, buffer, snprintf((char *)buffer, preferred_size, "{\"Air humidity\":%f %%}", humidity));
 }
 
