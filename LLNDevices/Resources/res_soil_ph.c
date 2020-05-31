@@ -17,8 +17,10 @@ EVENT_RESOURCE(res_soil_ph,
          res_event_handler);
          
 static void res_event_handler(void) {
-	static double random_value = 0.2 * rand() / RAND_MAX;				//returns a random value between 0 and 0.2
-	static double increasing_sign = rand() / RAND_MAX - RAND_MAX / 2;	//returns a random value between -0.5 and 0.5
+	static double random_value;
+	random_value = 0.2 * rand() / RAND_MAX;				//returns a random value between 0 and 0.2
+	static double increasing_sign;
+	increasing_sign = rand() / RAND_MAX - RAND_MAX / 2;	//returns a random value between -0.5 and 0.5
 
 	if(increasing_sign > 0)
 		soil_ph += random_value;									//soil_ph can increase of up to 0.2
