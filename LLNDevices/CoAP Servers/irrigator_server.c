@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include "contiki.h"
 #include "coap-engine.h"
+#include "dev/leds.h"
 
 /* Log configuration */
 // #include "sys/log.h"
@@ -23,6 +24,7 @@ PROCESS_THREAD(air_monitor_server, ev, data){
 
 	coap_activate_resource(&res_irrigator, "irrigator");
 
+	leds_on(LEDS_NUM_TO_MASK(LEDS_RED));
 
 	PROCESS_END();
 }
