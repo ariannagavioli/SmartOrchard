@@ -18,7 +18,8 @@ EVENT_RESOURCE(res_soil_hum,
          res_event_handler);
          
 static void res_event_handler(void) {
-	static double random_value = 3 * rand() / RAND_MAX;				//returns a random value between 0 and 3
+	static double random_value;
+	random_value = 3 * rand() / RAND_MAX;				//returns a random value between 0 and 3
 	
 	humidity += (increasing_sign * random_value);					//humidity can change up to 3%
 	
@@ -33,6 +34,6 @@ static void res_event_handler(void) {
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {	
 	coap_set_header_content_format(response, TEXT_PLAIN);
-	coap_set_payload(response, buffer, snprintf((char *)buffer, preferred_size, "{\"Soil humidity\":%f %}", humidity));
+	coap_set_payload(response, buffer, snprintf((char *)buffer, preferred_size, "{\"Soil humidity\":%f %%}", humidity));
 }
 
