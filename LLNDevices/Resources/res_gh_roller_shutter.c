@@ -37,14 +37,16 @@ static void res_post_handler(coap_message_t *request, coap_message_t *response, 
 
 	if(coap_get_post_variable(request, "action", &action)) {
 		if(!strcmp("open",action) && strcmp("open", status)) {		//The client asked to open the roller shutter, which was closed
-			status = "open";
+			memset(status, 0, sizeof(status));
+			memcpy(status,"open",strlen("open"));
 			leds_on(LEDS_NUM_TO_MASK(LEDS_GREEN));					//The open shutter is represented by the green LED
 			leds_off((LEDS_NUM_TO_MASK(LEDS_RED)));
 		}
 		else if(!strcmp("closed",action) && strcmp("closed", status)) {	//The client asked to close the open shutter
-			status = "closed";
+			memset(status,0,sizeof(status));
+			memcpy(status,"closed",strlen("closed"));
 			leds_on(LEDS_NUM_TO_MASK(LEDS_RED));
-			leds_off(LEDS_NUM_TO_MASK(LEDS_GREEN))
+			leds_off(LEDS_NUM_TO_MASK(LEDS_GREEN));
 		}
 		coap_set_status_code(response,CREATED_2_01);
 	}
