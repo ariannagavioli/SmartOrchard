@@ -34,15 +34,18 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response, u
 /* Activates the irrigator for a given interval of time */
 static void res_post_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset){
 	const char *duration = NULL;
-	if(coap_get_post_variable(request, "duration", &duration) && !strcmp("on",status)) {
-		status = "on";
-		static int interval = atoi(duration);
+	if(coap_get_post_variable(request, "duration", &duration) && strcmp("on",status)) {		/* If irrigation is asked and the irrigator is not active */
+		memset(status, 0, sizeof(status));
+		memcpy(status,"on",strlen("on"));
+		static int interval;
+		interval = atoi(duration);
 		coap_set_status_code(response,CREATED_2_01);
 		/* Simulation of the irrigation interval */
 		leds_on(LEDS_NUM_TO_MASK(LEDS_GREEN));
 		sleep(interval);
 		leds_off(LEDS_NUM_TO_MASK(LEDS_GREEN));
-		status = "off";
+		memset(status, 0, sizeof(status));
+		memcpy(status,"off",strlen("off"));
 	} else {
 		coap_set_status_code(response, BAD_REQUEST_4_00);
 	}
