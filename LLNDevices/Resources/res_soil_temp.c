@@ -4,24 +4,26 @@
 #include "coap-engine.h"
 
 static double temperature	= 25;
-static int increasing_sign	= 1;		//Either 1 or -1 depending on the period of the day (can be modified through a put on the resource)
+static int increasing_sign	= -1;		//Either 1 or -1 depending on the period of the day (can be modified through a put on the resource)
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
+static void res_post_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
 static void res_event_handler(void);
 
 EVENT_RESOURCE(res_soil_temp,
          "title=\"Soil Temperature\";obs",
          res_get_handler,
-         NULL,
+         res_post_handler,
          NULL,
          NULL,
          res_event_handler);
          
 static void res_event_handler(void) {
 	static double random_value;
-	random_value = rand() / RAND_MAX;			//returns a random value between 0 and 1
+	random_value = rand() % 21;
+	random_value *= 0.1;									//random value is n*0.1°C and between (0°C,2°C), where n = {0, 1, ..., 20}
 	
-	temperature += (increasing_sign * random_value);			//temperature can change up to 1°C
+	temperature += (increasing_sign * random_value);		//temperature can change up to 2°C
 	
 	if(temperature > 40)
 		temperature = 40;
@@ -31,6 +33,7 @@ static void res_event_handler(void) {
 	coap_notify_observers(&res_soil_temp);
 }
 
+/* Returns the temperature value either expressed in Celsius or Fahrenheit */
 static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {	
 	
 	const char *degree = NULL;
@@ -53,4 +56,38 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response, u
 		coap_set_payload(response, buffer, snprintf((char *)buffer, preferred_size, "{\"Soil temperature\":%f °C}", req_temperature));
 	else
 		coap_set_payload(response, buffer, snprintf((char *)buffer, preferred_size, "{\"Soil temperature\":%f °F}", req_temperature));
+}
+
+/* For simulation purposes, a post call will adjust the temperature resource, such as its increase or decrease */
+static void res_post_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset){
+	const char *sign = NULL;
+	static int length;
+	
+	length = coap_get_post_variable(request, "sign", &sign);
+	
+	if(length) {
+		
+		static char msg[2];
+		memset(msg, 0, sizeof(msg));
+		memcpy(msg, sign, length);
+		
+		/* If the client asks to for the decreasing temperature
+		 * to start increase, then change the increasing sign
+		 */
+		if(!strcmp(msg, "+") && increasing_sign < 0) {
+			increasing_sign = 1;
+		}
+		
+		/* If the client asks to for the increasing temperature
+		 * to start decrease, then change the increasing sign
+		 */
+		else if(!strcmp(msg, "-") && increasing_sign > 0) {
+			increasing_sign = -1;
+		}
+
+		coap_set_status_code(response, CHANGED_2_04);
+			
+	} else {
+		coap_set_status_code(response, BAD_REQUEST_4_00);
+	}
 }
