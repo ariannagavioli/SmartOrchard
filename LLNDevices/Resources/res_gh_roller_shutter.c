@@ -41,14 +41,19 @@ static void res_post_handler(coap_message_t *request, coap_message_t *response, 
 			memcpy(status,"open",strlen("open"));
 			leds_on(LEDS_NUM_TO_MASK(LEDS_GREEN));					//The open shutter is represented by the green LED
 			leds_off((LEDS_NUM_TO_MASK(LEDS_RED)));
+			coap_set_status_code(response,CHANGED_2_04);
 		}
 		else if(!strcmp("closed",action) && strcmp("closed", status)) {	//The client asked to close the open shutter
 			memset(status,0,sizeof(status));
 			memcpy(status,"closed",strlen("closed"));
 			leds_on(LEDS_NUM_TO_MASK(LEDS_RED));
 			leds_off(LEDS_NUM_TO_MASK(LEDS_GREEN));
+			coap_set_status_code(response,CHANGED_2_04);
 		}
-		coap_set_status_code(response,CREATED_2_01);
+		else {
+			coap_set_status_code(response, BAD_REQUEST_4_00);
+		}
+		
 	}
 
 	else {
