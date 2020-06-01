@@ -4,11 +4,12 @@
 #include <unistd.h>
 #include "contiki.h"
 #include "coap-engine.h"
+#include "sys/etimer.h"
 
 /* Log configuration */
-// #include "sys/log.h"
-// #define LOG_MODULE "App"
-// #define LOG_LEVEL LOG_LEVEL_APP
+#include "sys/log.h"
+#define LOG_MODULE "App"
+#define LOG_LEVEL LOG_LEVEL_APP
 
 PROCESS(air_monitor_server, "Air Monitor CoAP Server");
 AUTOSTART_PROCESSES(&air_monitor_server);
@@ -22,7 +23,7 @@ static struct etimer et;
 PROCESS_THREAD(air_monitor_server, ev, data){
 	PROCESS_BEGIN();
 
-	//LOG_INFO("Starting Air Monitoring Server\n");
+	LOG_INFO("Starting Air Monitoring Server\n");
 
 	coap_activate_resource(&res_air_temp, "air_temp");
 	coap_activate_resource(&res_air_hum, "air_hum");
