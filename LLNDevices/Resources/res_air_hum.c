@@ -20,17 +20,18 @@ static void res_event_handler(void) {
 	static double random_value;
 	random_value = rand() % 11;
 	random_value *= 0.1;								//random value is a value n*0.1, where n = {0, 1, ..., 10}
-	printf("Random value: %f\n", random_value);
+
 	static int random_sign;
 	random_sign = rand() % 2;							//returns either 0 or 1
+	
 	if(random_sign > 0) {
 		humidity += random_value;
 	} else {
 		humidity -= random_value;
 	}
 	
-	if(humidity > 85)
-		humidity = 85;
+	if(humidity > 100)
+		humidity = 100;
 	else if(humidity < 0)
 		humidity = 0;
 	
