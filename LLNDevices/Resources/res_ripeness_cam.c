@@ -8,12 +8,13 @@ static int increasing_color		= 1;			//Either 0, 1 or 2: indicates the color that
 static int decreasing_color		= 2;			//Either 0, 1 or 2: indicates the color that is decreasing in percentage
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
+static void res_post_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
 static void res_event_handler(void);
 
 EVENT_RESOURCE(res_ripeness_cam,
          "title=\"Ripeness Camera\";obs",
          res_get_handler,
-         NULL,
+         res_post_handler,
          NULL,
          NULL,
          res_event_handler);
@@ -45,4 +46,55 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response, u
 																					rgb_values[0], rgb_values[1], rgb_values[2]));
 }
 
+/* For simulation purposes, a post call will adjust the rgb average values. E.g. when fruit is picked */
+static void res_post_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset){
+	const char *r = NULL;
+	const char *g = NULL;
+	const char *b = NULL;
+	static int length1;
+	static int length2;
+	static int length2;
+	
+	length1 = coap_get_post_variable(request, "r", &r);
+	length2 = coap_get_post_variable(request, "g", &g);
+	length3 = coap_get_post_variable(request, "b", &b);
+	
+	if(length1) {
+		
+		static int amount = atoi(r);
+		if(amount < 0)
+			amount = 1;
+		amount = amount % 1;
+		rgb_values[0] = amount;
+
+		coap_set_status_code(response, CHANGED_2_04);
+
+	}
+	if(length2) {
+
+		static int amount = atoi(g);
+		if(amount < 0)
+			amount = 1;
+		amount = amount % 1;
+		rgb_values[1] = amount;
+
+		coap_set_status_code(response, CHANGED_2_04);
+
+	}
+	if(length3) {
+
+		static int amount = atoi(b);
+		if(amount < 0)
+			amount = 1;
+		amount = amount % 1;
+		rgb_values[2] = amount;
+
+		coap_set_status_code(response, CHANGED_2_04);
+
+	} 
+
+	if(!length1 && !length2 && !length3) {
+		coap_set_status_code(response, BAD_REQUEST_4_00);
+	}
+}
 
