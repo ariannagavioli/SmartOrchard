@@ -21,7 +21,7 @@ RESOURCE(res_irrigator,
 static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
 	
 	static char msg[128];
-	sprintf(msg, "{\"Irrigator Status\":%s}",status);
+	sprintf(msg, "{\"Irrigator Status\":\"%s\"}",status);
 	static int length;
 	length = strlen(msg);
 	memcpy(buffer, msg, length);
@@ -31,21 +31,45 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response, u
 	coap_set_payload(response, buffer, length);
 }
 
-/* Activates the irrigator for a given interval of time */
+/* Activates or deactivates the irrigator */
 static void res_post_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset){
-	const char *duration = NULL;
-	if(coap_get_post_variable(request, "duration", &duration) && strcmp("on",status)) {		/* If irrigation is asked and the irrigator is not active */
-		memset(status, 0, sizeof(status));
-		memcpy(status,"on",strlen("on"));
-		static int interval;
-		interval = atoi(duration);
-		coap_set_status_code(response,CREATED_2_01);
-		/* Simulation of the irrigation interval */
-		leds_on(LEDS_NUM_TO_MASK(LEDS_GREEN));
-		sleep(interval);
-		leds_off(LEDS_NUM_TO_MASK(LEDS_GREEN));
-		memset(status, 0, sizeof(status));
-		memcpy(status,"off",strlen("off"));
+	
+	const char *mode = NULL;
+	static int length;
+	
+	length = coap_get_post_variable(request, "mode", &mode);
+	
+	if(length) {		//If post is correctly formulated
+		
+		static char msg[4];
+		memset(msg, 0, sizeof(msg));
+		memcpy(msg, mode, length);
+		
+		/* If the client asks to activate the inactive irrigator
+		 * the status is set to active and the green led is lit
+		 */
+		if(!strcmp(msg, "on") && strcmp(status, "on")) {
+			leds_off(LEDS_NUM_TO_MASK(LEDS_RED));
+			leds_on(LEDS_NUM_TO_MASK(LEDS_GREEN));
+			memset(status, 0, sizeof(status));
+			memcpy(status, "on", strlen("on"));
+		}
+		
+		/* If the client asks to turn off the active irrigator
+		 * the status is set to inactive and the red led is lit
+		 */
+		else if(!strcmp(msg, "off") && strcmp(status, "off")) {
+			leds_on(LEDS_NUM_TO_MASK(LEDS_RED));
+			leds_off(LEDS_NUM_TO_MASK(LEDS_GREEN));
+			memset(status, 0, sizeof(status));
+			memcpy(status, "off", strlen("off"));
+		}
+		
+		/* Any other form of request is considered bad request */
+		else {
+			coap_set_status_code(response, BAD_REQUEST_4_00);
+		}
+			
 	} else {
 		coap_set_status_code(response, BAD_REQUEST_4_00);
 	}
