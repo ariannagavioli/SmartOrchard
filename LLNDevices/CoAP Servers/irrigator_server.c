@@ -12,13 +12,13 @@
 #define LOG_MODULE "App"
 #define LOG_LEVEL LOG_LEVEL_APP
 
-PROCESS(air_monitor_server, "Irrigator CoAP Server");
-AUTOSTART_PROCESSES(&air_monitor_server);
+PROCESS(irrigator_server, "Irrigator CoAP Server");
+AUTOSTART_PROCESSES(&irrigator_server);
 
 extern coap_resource_t res_irrigator;
 
 /*---------------------------------------------------------------------------*/
-PROCESS_THREAD(air_monitor_server, ev, data){
+PROCESS_THREAD(irrigator_server, ev, data){
 	PROCESS_BEGIN();
 
 	LOG_INFO("Starting Irrigator Server\n");
