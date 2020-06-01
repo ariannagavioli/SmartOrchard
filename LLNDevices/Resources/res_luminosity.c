@@ -19,7 +19,8 @@ EVENT_RESOURCE(res_luminosity,
          
 static void res_event_handler(void) {
 	static double random_value;
-	random_value = 30 * rand() / RAND_MAX;				//returns a random value between 0 and 30
+	random_value = rand() % 300;				
+	random_value *= 0.1;				//returns a random value between 0 and 30
 	
 	luminosity += (increasing_sign * random_value);						//luminosity can change up to 30 lux
 
