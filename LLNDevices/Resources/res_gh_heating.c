@@ -39,14 +39,20 @@ static void res_post_handler(coap_message_t *request, coap_message_t *response, 
 		if(!strcmp("on",mode) && strcmp("on", status)) {		//The client asked to activate the heating system, which was inactive
 			memset(status, 0, sizeof(status));
 			memcpy(status, "on", strlen("on"));
-			leds_on(LEDS_NUM_TO_MASK(LEDS_RED));				//The active heating system is simulated through a LED
+			leds_off(LEDS_NUM_TO_MASK(LEDS_RED));
+			leds_on(LEDS_NUM_TO_MASK(LEDS_GREEN));				//The active heating system is simulated through a LED
+			coap_set_status_code(response,CHANGED_2_04);
 		}
 		else if(!strcmp("off",mode) && strcmp("off", status)) {	//The client asked to deactivate the active heating system
 			memset(status, 0, sizeof(status));
 			memcpy(status, "off", strlen("off"));
-			leds_off(LEDS_NUM_TO_MASK(LEDS_RED));
+			leds_off(LEDS_NUM_TO_MASK(LEDS_GREEN));
+			leds_on(LEDS_NUM_TO_MASK(LEDS_RED));
+			coap_set_status_code(response,CHANGED_2_04);
 		}
-		coap_set_status_code(response,CREATED_2_01);
+		else {
+			coap_set_status_code(response, BAD_REQUEST_4_00);
+		}
 	}
 
 	else {
