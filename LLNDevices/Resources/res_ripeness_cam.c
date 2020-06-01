@@ -20,7 +20,8 @@ EVENT_RESOURCE(res_ripeness_cam,
          
 static void res_event_handler(void) {
 	static double random_value;
-	random_value = 0.1 * rand() / RAND_MAX;	//returns a random value between 0 and 10%
+	random_value = rand() % 101;	
+	random_value *= 0.001;				//returns a random value between 0 and 10%
 	
 	if(rgb_values[decreasing_color] >= random_value) {			//The whole random percentage of pixels flows from a color to another
 		rgb_values[decreasing_color] -= random_value;
