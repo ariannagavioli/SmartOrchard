@@ -7,13 +7,13 @@ static double temperature	= 25;
 static int increasing_sign	= 1;
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
+static void res_post_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
 static void res_event_handler(void);
 
-/* A simple actuator example, depending on the color query parameter and post variable mode, corresponding led is activated or deactivated */
 EVENT_RESOURCE(res_air_temp,
          "title=\"Air Temperature\";obs",
          res_get_handler,
-         NULL,
+         res_post_handler,
          NULL,
          NULL,
          res_event_handler);
@@ -33,6 +33,8 @@ static void res_event_handler(void) {
 	coap_notify_observers(&res_air_temp);
 }
 
+
+/* Returns the temperature value either expressed in Celsius or Fahrenheit */
 static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {	
 	const char *degree = NULL;
 	static double req_temperature;
@@ -55,4 +57,39 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response, u
 	else
 		coap_set_payload(response, buffer, snprintf((char *)buffer, preferred_size, "{\"Air temperature\":%f °F}", req_temperature));
 }
+
+/* For simulation purposes, a post call will adjust the temperature resource, such as its increase or decrease */
+static void res_post_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset){
+	const char *sign = NULL;
+	static int length;
+	
+	length = coap_get_post_variable(request, "sign", &sign);
+	
+	if(length) {
+		
+		static char msg[2];
+		memset(msg, 0, sizeof(msg));
+		memcpy(msg, sign, length);
+		
+		/* If the client asks to for the decreasing temperature
+		 * to start increase, then change the increasing sign
+		 */
+		if(!strcmp(msg, "+") && increasing_sign < 0) {
+			increasing_sign = 1;
+		}
+		
+		/* If the client asks to for the increasing temperature
+		 * to start decrease, then change the increasing sign
+		 */
+		else if(!strcmp(msg, "-") && increasing_sign > 0) {
+			increasing_sign = -1;
+		}
+
+		coap_set_status_code(response, CHANGED_2_04);
+			
+	} else {
+		coap_set_status_code(response, BAD_REQUEST_4_00);
+	}
+}
+
 
