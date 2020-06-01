@@ -53,6 +53,7 @@ static void res_post_handler(coap_message_t *request, coap_message_t *response, 
 			leds_on(LEDS_NUM_TO_MASK(LEDS_GREEN));
 			memset(status, 0, sizeof(status));
 			memcpy(status, "on", strlen("on"));
+			coap_set_status_code(response, CHANGED_2_04);
 		}
 		
 		/* If the client asks to turn off the active irrigator
@@ -63,6 +64,7 @@ static void res_post_handler(coap_message_t *request, coap_message_t *response, 
 			leds_off(LEDS_NUM_TO_MASK(LEDS_GREEN));
 			memset(status, 0, sizeof(status));
 			memcpy(status, "off", strlen("off"));
+			coap_set_status_code(response, CHANGED_2_04);
 		}
 		
 		/* Any other form of request is considered bad request */
