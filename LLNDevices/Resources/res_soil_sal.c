@@ -41,7 +41,7 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response, u
 
 
 /* For simulation purposes, a post call will adjust the salinity resource, increasing it of a certain quantity*/
-static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {	
+static void res_post_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {	
 
 	const char *increase = NULL;
 	static int length;
@@ -50,8 +50,9 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response, u
 
 	if(length) {
 
-		static int amount = atoi(increase);
-		humidity += amount;
+		static int amount;
+		amount = atoi(increase);
+		soil_salinity += amount;
 
 		coap_set_status_code(response, CHANGED_2_04);
 	} else {
