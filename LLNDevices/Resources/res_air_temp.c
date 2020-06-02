@@ -53,9 +53,9 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response, u
 	
 	coap_set_header_content_format(response, TEXT_PLAIN);
 	if(isCelsius)
-		coap_set_payload(response, buffer, snprintf((char *)buffer, preferred_size, "{\"Air temperature\":%f °C}", req_temperature));
+		coap_set_payload(response, buffer, snprintf((char *)buffer, preferred_size, "{\"Air temperature\":%f}", req_temperature));
 	else
-		coap_set_payload(response, buffer, snprintf((char *)buffer, preferred_size, "{\"Air temperature\":%f °F}", req_temperature));
+		coap_set_payload(response, buffer, snprintf((char *)buffer, preferred_size, "{\"Air temperature\":%f}", req_temperature));
 }
 
 /* For simulation purposes, a post call will adjust the temperature resource, such as its increase or decrease */
