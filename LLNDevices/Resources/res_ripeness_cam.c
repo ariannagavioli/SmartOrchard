@@ -4,8 +4,8 @@
 #include "coap-engine.h"
 
 static float rgb_values[3]		= {0,1,0};		//Percentage of pixels being red, green and blue
-static int increasing_color		= 1;			//Either 0, 1 or 2: indicates the color that is increasing in percentage
-static int decreasing_color		= 2;			//Either 0, 1 or 2: indicates the color that is decreasing in percentage
+static int increasing_color		= 0;			//Either 0, 1 or 2: indicates the color that is increasing in percentage
+static int decreasing_color		= 1;			//Either 0, 1 or 2: indicates the color that is decreasing in percentage
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
 static void res_post_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
@@ -42,7 +42,7 @@ static void res_event_handler(void) {
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {	
 	coap_set_header_content_format(response, TEXT_PLAIN);
-	coap_set_payload(response, buffer, snprintf((char *)buffer, preferred_size, "{\"Ripeness Camera RGB percentage values\": [%f,%f,%f]}",
+	coap_set_payload(response, buffer, snprintf((char *)buffer, preferred_size, "{\"Camera RGB percentage values\": [%f,%f,%f]}",
 																					rgb_values[0], rgb_values[1], rgb_values[2]));
 }
 
@@ -53,7 +53,7 @@ static void res_post_handler(coap_message_t *request, coap_message_t *response, 
 	const char *b = NULL;
 	static int length1;
 	static int length2;
-	static int length2;
+	static int length3;
 	
 	length1 = coap_get_post_variable(request, "r", &r);
 	length2 = coap_get_post_variable(request, "g", &g);
@@ -61,10 +61,14 @@ static void res_post_handler(coap_message_t *request, coap_message_t *response, 
 	
 	if(length1) {
 		
-		static int amount = atoi(r);
+		static int amount;
+		amount = atoi(r);
+		
 		if(amount < 0)
+			amount = 0;
+		else if(amount > 1)
 			amount = 1;
-		amount = amount % 1;
+			
 		rgb_values[0] = amount;
 
 		coap_set_status_code(response, CHANGED_2_04);
@@ -72,10 +76,14 @@ static void res_post_handler(coap_message_t *request, coap_message_t *response, 
 	}
 	if(length2) {
 
-		static int amount = atoi(g);
+		static int amount;
+		amount = atoi(g);
+		
 		if(amount < 0)
+			amount = 0;
+		else if(amount > 1)
 			amount = 1;
-		amount = amount % 1;
+			
 		rgb_values[1] = amount;
 
 		coap_set_status_code(response, CHANGED_2_04);
@@ -83,10 +91,14 @@ static void res_post_handler(coap_message_t *request, coap_message_t *response, 
 	}
 	if(length3) {
 
-		static int amount = atoi(b);
+		static int amount;
+		amount = atoi(b);
+		
 		if(amount < 0)
+			amount = 0;
+		else if(amount > 1)
 			amount = 1;
-		amount = amount % 1;
+		
 		rgb_values[2] = amount;
 
 		coap_set_status_code(response, CHANGED_2_04);
