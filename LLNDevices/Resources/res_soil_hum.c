@@ -13,7 +13,7 @@ static void res_event_handler(void);
 EVENT_RESOURCE(res_soil_hum,
          "title=\"Soil Humidity\";obs",
          res_get_handler,
-         NULL,
+         res_post_handler,
          NULL,
          NULL,
          res_event_handler);
@@ -40,7 +40,7 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response, u
 }
 
 /* For simulation purposes, a post call will adjust the humidity resource, such as its increase or decrease */
-static void res_post_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset){
+static void res_post_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
 	const char *sign = NULL;
 	const char *increase = NULL;
 	static int length1;
@@ -73,7 +73,8 @@ static void res_post_handler(coap_message_t *request, coap_message_t *response, 
 
 	} else if(length2) {
 
-		static int amount = atoi(increase);
+		static int amount;
+		amount = atoi(increase);
 		humidity += amount;
 
 		coap_set_status_code(response, CHANGED_2_04);
