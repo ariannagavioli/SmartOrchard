@@ -21,7 +21,8 @@ RESOURCE(res_gh_roller_shutter,
 static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
 	
 	static char msg[128];
-	sprintf(msg, "{\"Roller Shutter Status\":%s}",status);
+	memset(msg, 0, sizeof(msg));
+	sprintf(msg, "{\"Roller_Shutter_Status\":\"%s\"}",status);
 	static int length;
 	length = strlen(msg);
 	memcpy(buffer, msg, length);
