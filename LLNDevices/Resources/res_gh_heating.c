@@ -21,7 +21,8 @@ RESOURCE(res_gh_heating,
 static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
 	
 	static char msg[128];
-	sprintf(msg, "{\"Heating Status\":%s}",status);
+	memset(msg, 0, sizeof(msg));
+	sprintf(msg, "{\"Heating Status\":\"%s\"}",status);
 	static int length;
 	length = strlen(msg);
 	memcpy(buffer, msg, length);
