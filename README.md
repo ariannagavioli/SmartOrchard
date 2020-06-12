@@ -11,6 +11,7 @@ There are three types of actuators as well, acting as CoAP servers:
 1. GreenHouse Heating: controls the heating system of the greenhouse;
 2. GreenHouse Roller Shutter: controls the roller shutter of the greenhouse;
 3. Irrigator: controls the irrigation system.
+
 The motes first register to the cloud application and then are free to run as CoAP servers.
 
 ## The Cloud Application
